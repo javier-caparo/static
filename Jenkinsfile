@@ -3,7 +3,8 @@ pipeline {
      stages {
          stage('Lint HTML') {
               steps {
-                  sh 'tidy -q -e *.html'
+                    sh 'echo "LInting the *.html files"'
+                    sh 'tidy -q -e *.html'
               }
          }
          stage('Upload to AWS') {
@@ -14,5 +15,16 @@ pipeline {
                   }
               }
          }
+          stage('Check the WebSite is Up') {
+			steps {
+				sh '''
+					response=$(curl -s -o /dev/null -w "%{http_code}\n" https://static-jenkins-repo-project3.s3-us-west-2.amazonaws.com/index.html)
+					if [ "$response" != "200" ]
+					then
+					 exit 1
+					fi
+				'''
+			}
+		}
      }
 }
